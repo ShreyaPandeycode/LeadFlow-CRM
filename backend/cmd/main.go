@@ -20,48 +20,36 @@ func main() {
 		log.Println(".env not found, using environment variables")
 	}
 
-	// Connect Database
-	database.ConnectDB()
+	log.Println("Connecting DB...")
+database.ConnectDB()
+log.Println("DB Connected")
 
-	// Seed Database
-	seeder.SeedDatabase()
+log.Println("Running Seeder...")
+seeder.SeedDatabase()
+log.Println("Seeder Finished")
 
-	router := gin.Default()
+router := gin.Default()
+log.Println("Router Created")
 
-	// CORS
-	router.Use(cors.New(cors.Config{
-		AllowOrigins: []string{
-			"http://localhost:5173",
-			// Add your Vercel URL here after deployment
-			// "https://your-project.vercel.app",
-		},
-		AllowMethods: []string{
-			"GET",
-			"POST",
-			"PUT",
-			"DELETE",
-			"OPTIONS",
-		},
-		AllowHeaders: []string{
-			"Origin",
-			"Content-Type",
-			"Authorization",
-		},
-		AllowCredentials: true,
-	}))
+router.Use(cors.New(cors.Config{
+	AllowOrigins: []string{"http://localhost:5173"},
+	AllowMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+	AllowHeaders: []string{"Origin", "Content-Type", "Authorization"},
+	AllowCredentials: true,
+}))
 
-	// Register Routes
-	routes.RegisterRoutes(router)
+log.Println("Registering Routes...")
+routes.RegisterRoutes(router)
+log.Println("Routes Registered")
 
-	// Render provides PORT automatically
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
+port := os.Getenv("PORT")
+if port == "" {
+	port = "8080"
+}
 
-	log.Println("Server running on port", port)
+log.Println("Starting server on port:", port)
 
-	if err := router.Run(":" + port); err != nil {
-		log.Fatal(err)
-	}
+if err := router.Run(":" + port); err != nil {
+	log.Fatal("Server failed:", err)
+}
 }
