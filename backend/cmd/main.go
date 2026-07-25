@@ -2,34 +2,66 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/ShreyaPandeycode/leadflow-crm/database"
 	"github.com/ShreyaPandeycode/leadflow-crm/routes"
 	"github.com/ShreyaPandeycode/leadflow-crm/seeder"
+
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"github.com/gin-contrib/cors"
 )
 
 func main() {
 
-    err := godotenv.Load()
-    if err != nil {
-        log.Fatal(err)
-    }
+	// Load .env locally. On Render it will use Environment Variables.
+	if err := godotenv.Load(); err != nil {
+		log.Println(".env not found, using environment variables")
+	}
 
-    database.ConnectDB()
-seeder.SeedDatabase()
-    router := gin.Default()
-router.Use(cors.New(cors.Config{
-    AllowOrigins: []string{"http://localhost:5173"},
-    AllowMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-    AllowHeaders: []string{"Origin", "Content-Type", "Authorization"},
-    AllowCredentials: true,
-}))
-    routes.RegisterRoutes(router)
+	// Connect Database
+	database.ConnectDB()
 
-    router.Run(":8080")
+	// Seed Database
+	seeder.SeedDatabase()
+
+	router := gin.Default()
+
+	// CORS
+	router.Use(cors.New(cors.Config{
+		AllowOrigins: []string{
+			"http://localhost:5173",
+			// Add your Vercel URL here after deployment
+			// "https://your-project.vercel.app",
+		},
+		AllowMethods: []string{
+			"GET",
+			"POST",
+			"PUT",
+			"DELETE",
+			"OPTIONS",
+		},
+		AllowHeaders: []string{
+			"Origin",
+			"Content-Type",
+			"Authorization",
+		},
+		AllowCredentials: true,
+	}))
+
+	// Register Routes
+	routes.RegisterRoutes(router)
+
+	// Render provides PORT automatically
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	log.Println("Server running on port", port)
+
+	if err := router.Run(":" + port); err != nil {
+		log.Fatal(err)
+	}
 }
-
-// ep1Ko6iHyT3Du2yX
