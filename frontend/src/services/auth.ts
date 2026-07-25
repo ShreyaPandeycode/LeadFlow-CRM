@@ -1,11 +1,8 @@
-import api from "./api";
 import axios from "axios";
 
 export function login(data: any) {
-
-    return axios.post(
-        "http://localhost:8080/login",
-        data
-    );
-
+  return axios.post(
+    `${import.meta.env.VITE_API_URL.replace("/api", "")}/login`,
+    data
+  );
 }
